@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mauri-Drones — Gestion flotte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Palette Mauri-Drones ── */
+
+:root {
+  --bg:        #0b1018;
+  --surface:   #14171c;
+  --card:      #1b1f27;
+  --border:    #2b2f38;
+  --border2:   #3e4450;
+  --text:      #c8cdd6;
+  --muted:     #5e6776;
+  --blue:      #4d8ecb;
+  --blue-dark: #3a78b8;
+  --blue-light:#6ba3d9;
+  --green:     #22c55e;
+  --orange:    #f97316;
+  --red:       #ef4444;
+  --white:     #ffffff;
+}
+
+,::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Space Grotesk', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── Header ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 36px; height: 36px;
+  position: relative; flex-shrink: 0;
+}
+.logo-icon svg { width: 100%; height: 100%; }
+
+.brand { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.5px; color: var(--white); }
+.brand span { color: var(--blue); }
+.brand-sub { font-size: .75rem; color: var(--muted); margin-left: auto; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+
+/* ── Layout ── */
+.container { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+
+/* ── Stats ── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.stat-val { font-size: 1.75rem; font-weight: 700; color: var(--blue); line-height: 1; margin-bottom: 4px; }
+.stat-val.green { color: var(--green); }
+.stat-val.orange { color: var(--orange); }
+.stat-val.red { color: var(--red); }
+.stat-val.purple { color: #a78bfa; }
+.stat-lbl { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+
+/* ── Alert ── */
+.alert {
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 22px;
+  font-size: .875rem;
+  border-left: 3px solid;
+  display: flex; align-items: center; gap: 10px;
+}
+.alert.success { background: #001a08; border-color: var(--green); color: #86efac; }
+.alert.error   { background: #1a0800; border-color: var(--red);   color: #fca5a5; }
+.alert.warning { background: #1a0800; border-color: var(--orange); color: #fdba74; }
+.alert-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.success .alert-dot { background: var(--green); }
+.error   .alert-dot { background: var(--red); }
+.warning .alert-dot { background: var(--orange); }
+
+/* ── Grid 2 colonnes ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+
+/* ── Card ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.card-header h2 { font-size: .9rem; font-weight: 600; color: var(--white); }
+.card-header .badge-count {
+  margin-left: auto;
+  background: var(--blue);
+  color: var(--white);
+  font-size: .7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+}
+.card-icon { width: 18px; height: 18px; color: var(--blue); }
+.card-body { padding: 20px; }
+
+/* ── Formulaire ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 10px; }
+.form-group.full { grid-column: 1/-1; }
+label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+
+input, select {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 9px 12px;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: .875rem;
+  transition: border-color .2s, box-shadow .2s;
+  width: 100%;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(77,142,203,.15);
+}
+input::placeholder { color: var(--border2); }
+select option { background: var(--surface); }
+
+.form-actions { margin-top: 16px; display: flex; gap: 10px; }
+
+/* ── Boutons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border: none; border-radius: 7px;
+  font-family: inherit; font-size: .82rem; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  transition: opacity .15s, transform .1s;
+  white-space: nowrap;
+}
+.btn:hover { opacity: .88; transform: translateY(-1px); }
+.btn-primary   { background: var(--blue);  color: #fff; }
+.btn-ghost     { background: var(--border); color: var(--text); }
+.btn-edit      { background: rgba(77,142,203,.15); color: var(--blue-light); font-size: .75rem; padding: 5px 12px; }
+.btn-delete    { background: rgba(239,68,68,.12); color: #f87171; font-size: .75rem; padding: 5px 12px; }
+
+/* ── Searchbar ── */
+.searchbar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.searchbar input, .searchbar select { flex: 1; min-width: 160px; }
+.search-icon { color: var(--muted); flex-shrink: 0; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+thead tr { background: var(--surface); }
+th {
+  padding: 10px 14px; text-align: left;
+  color: var(--muted); font-size: .7rem;
+  text-transform: uppercase; letter-spacing: .07em; font-weight: 600;
+  white-space: nowrap;
+}
+tbody tr { border-top: 1px solid var(--border); transition: background .12s; }
+tbody tr:hover { background: rgba(77,142,203,.05); }
+td { padding: 11px 14px; vertical-align: middle; }
+.drone-name { font-weight: 600; color: var(--white); }
+.drone-sub { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+
+/* ── Status badge ── */
+.status {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: .73rem; font-weight: 600;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.s-actif  { background: rgba(34,197,94,.1);  color: #4ade80; }
+.s-actif  .status-dot { background: var(--green); }
+.s-maint  { background: rgba(249,115,22,.1); color: #fb923c; }
+.s-maint  .status-dot { background: var(--orange); }
+.s-hors   { background: rgba(239,68,68,.1);  color: #f87171; }
+.s-hors   .status-dot { background: var(--red); }
+
+/* ── Empty ── */
+.empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+.empty-icon { font-size: 2.5rem; margin-bottom: 10px; opacity: .4; }
+
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .stats  { grid-template-columns: repeat(3,1fr); }
+  table { min-width: 700px; }
+}
+@media (max-width: 600px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  header { padding: 0 16px; }
+  .container { padding: 16px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── Header avec logo ── -->
+<header>
+  <div class="logo-icon">
+    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="9" y1="9" x2="27" y2="27" stroke="#c8cdd6" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="27" y1="9" x2="9" y2="27" stroke="#c8cdd6" stroke-width="2.2" stroke-linecap="round"/>
+      <rect x="14" y="14" width="8" height="8" rx="2" fill="#3e4450" stroke="#c8cdd6" stroke-width="1.2"/>
+      <circle cx="18" cy="18" r="3.5" fill="#0b1018" stroke="#4d8ecb" stroke-width="1.5"/>
+      <circle cx="18" cy="18" r="2" fill="#4d8ecb"/>
+      <circle cx="9"  cy="9"  r="4" fill="#3e4450" stroke="#c8cdd6" stroke-width="1.2"/>
+      <ellipse cx="9"  cy="9"  rx="7" ry="1.5" fill="#c8cdd6" opacity=".5"/>
+      <circle cx="27" cy="9"  r="4" fill="#3e4450" stroke="#c8cdd6" stroke-width="1.2"/>
+      <ellipse cx="27" cy="9"  rx="7" ry="1.5" fill="#c8cdd6" opacity=".5"/>
+      <circle cx="9"  cy="27" r="4" fill="#3e4450" stroke="#c8cdd6" stroke-width="1.2"/>
+      <ellipse cx="9"  cy="27" rx="7" ry="1.5" fill="#c8cdd6" opacity=".5"/>
+      <circle cx="27" cy="27" r="4" fill="#3e4450" stroke="#c8cdd6" stroke-width="1.2"/>
+      <ellipse cx="27" cy="27" rx="7" ry="1.5" fill="#c8cdd6" opacity=".5"/>
+    </svg>
+  </div>
+  <div class="brand">Mauri-<span>Drones</span></div>
+  <div class="brand-sub">Gestion de flotte</div>
+</header>
+
+<div class="container">
+
+  <!-- ── Stats (placeholders, à remplacer par PHP) ── -->
+  <div class="stats">
+    <div class="stat"><div class="stat-val">0</div><div class="stat-lbl">Total</div></div>
+    <div class="stat"><div class="stat-val green">0</div><div class="stat-lbl">Actifs</div></div>
+    <div class="stat"><div class="stat-val orange">0</div><div class="stat-lbl">Maintenance</div></div>
+    <div class="stat"><div class="stat-val red">0</div><div class="stat-lbl">Hors service</div></div>
+    <div class="stat"><div class="stat-val purple">0<small style="font-size:.9rem"> min</small></div><div class="stat-lbl">Autonomie moy.</div></div>
+  </div>
+
+  <!-- ── Alert (placeholder, à remplacer par PHP) ── -->
+  <div class="alert success" style="display: none;">
+    <div class="alert-dot"></div>
+    <!-- Message ici -->
+  </div>
+
+  <div class="grid-2">
+
+    <!-- ── Formulaire (à envoyer vers votre fichier PHP) ── -->
+    <div class="card" id="form">
+      <div class="card-header">
+        <svg class="card-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M10 4v12M4 10h12" stroke-linecap="round"/>
+        </svg>
+        <h2>Nouveau drone</h2>
+      </div>
+      <div class="card-body">
+        <form action="votre_fichier_php.php" method="POST">
+          <input type="hidden" name="action" value="create">
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" name="nom" placeholder="Alpha-01" required>
+            </div>
+            <div class="form-group">
+              <label>Marque</label>
+              <input type="text" name="marque" placeholder="DJI" required>
+            </div>
+            <div class="form-group">
+              <label>Modèle</label>
+              <input type="text" name="modele" placeholder="Mavic 3" required>
+            </div>
+            <div class="form-group">
+              <label>Statut</label>
+              <select name="statut" required>
+                <option value="">— Choisir —</option>
+                <option value="actif">Actif</option>
+                <option value="en_maintenance">Maintenance</option>
+                <option value="hors_service">Hors service</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Autonomie (min)</label>
+              <input type="number" name="autonomie" step="0.1" min="0" placeholder="46.0" required>
+            </div>
+            <div class="form-group">
+              <label>Portée (m)</label>
+              <input type="number" name="portee" min="0" placeholder="12000" required>
+            </div>
+            <div class="form-group">
+              <label>Poids (g)</label>
+              <input type="number" name="poids" step="0.01" min="0" placeholder="895" required>
+            </div>
+            <div class="form-group">
+              <label>Date d'achat</label>
+              <input type="date" name="date_achat" required>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">+ Ajouter</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Tableau (placeholders, à remplacer par PHP) ── -->
+    <div>
+      <!-- Searchbar -->
+      <form method="GET" action="votre_fichier_php.php">
+        <div class="searchbar">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="9" cy="9" r="6"/><path d="M15 15l3 3" stroke-linecap="round"/>
+          </svg>
+          <input type="text" name="search" placeholder="Nom, marque, modèle…">
+          <select name="statut">
+            <option value="">Tous</option>
+            <option value="actif">Actif</option>
+            <option value="en_maintenance">Maintenance</option>
+            <option value="hors_service">Hors service</option>
+          </select>
+          <button type="submit" class="btn btn-primary">Filtrer</button>
+          <a href="votre_fichier_php.php" class="btn btn-ghost">✕</a>
+        </div>
+      </form>
+
+      <div class="card">
+        <div class="card-header">
+          <svg class="card-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="5" width="14" height="12" rx="2"/><path d="M7 2v3M13 2v3M3 9h14" stroke-linecap="round"/>
+          </svg>
+          <h2>Inventaire</h2>
+          <span class="badge-count">0</span>
+        </div>
+        <div class="table-wrap">
+          <div class="empty">
+            <div class="empty-icon">🚁</div>
+            <p>Aucun drone enregistré</p>
+          </div>
+          <!-- Le tableau sera généré par PHP -->
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid-2 -->
+</div><!-- /container -->
+
+</body>
+</html>
