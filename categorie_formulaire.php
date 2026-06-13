@@ -1,3 +1,49 @@
+<?php 
+$con=mysqli_connect("localhost","root","","mauri_drones");
+$message='';
+
+if(isset($_POST['ajouter'])){
+  $nom= isset($_POST['nom']) ? trim(htmlspecialchars($_POST['nom'])) : '';
+  $type=isset($_POST['type']) ? trim(htmlspecialchars($_POST['type'])) : '';
+      if(!empty($nom) and !empty($type)){
+      $req="insert into categorie (nom,type) values (?,?)";
+      $stmt=$con->prepare($req);
+      $stmt->bind_param("ss",$nom,$type);
+      if($stmt->execute()){
+       header("location:categorie_formulaire.php?succes=1");
+       exit();
+      }
+      else "<script>alert('Erreur lors de la sauvagarde dans la base !')</script>";
+    }
+}
+
+if(isset($_POST['modifier'])){
+  $id= isset($_POST['id']) ? trim(htmlspecialchars($_POST['id'])) : '';
+  $nom= isset($_POST['nom1']) ? trim(htmlspecialchars($_POST['nom1'])) : '';
+  $type=isset($_POST['type1']) ? trim(htmlspecialchars($_POST['type1'])) : '';
+  $req="update categorie set nom=?, type=? where id_categorie=?";
+  $stmt=$con->prepare($req);
+  $stmt->bind_param('ssi',$nom,$type,$id);
+  if($stmt->execute()){
+    header("location:categorie_formulaire.php?succes=2");
+    exit();
+  }
+  else "<script>alert('Erreur lors de la sauvagarde dans la base !')</script>";
+}
+
+if(isset($_POST['supprimer'])){
+  $id= isset($_POST['id']) ? trim(htmlspecialchars($_POST['id'])) : '';
+  $req="delete from categorie where id_categorie=?";
+  $stmt=$con->prepare($req);
+  $stmt->bind_param('i',$id);
+  if($stmt->execute()){
+    header("location:categorie_formulaire.php?succes=3");
+    exit();
+  }
+}
+$req="select * from categorie";
+$res=mysqli_query($con,$req);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -350,7 +396,7 @@
 <nav>
   <a class="logo" href="#">
     <div class="logo-icon">
-      <img src="/mnt/user-data/uploads/Capture_d_écran_2026-05-11_123221.png" alt="Mauri-Drones logo" />
+      <img src="logoPI.png" alt="Mauri-Drones logo" />
     </div>
     Mauri-Drones
   </a>
@@ -375,6 +421,7 @@
   </div>
 
   <!-- ══ AJOUTER ══ -->
+ <form action="" method="post" name="f1">
   <div class="panel active" id="panel-add">
     <div class="card">
       <div class="card-header">
@@ -391,32 +438,32 @@
       <div class="field-row single">
         <div class="field-group">
           <label>Nom <span class="req">*</span></label>
-          <input type="text" id="add-nom" placeholder="Ex : Caméras thermiques" />
+          <input type="text" id="add-nom" placeholder="Ex : Caméras thermiques" value="<?php echo @$nom ?>" name="nom">
         </div>
       </div>
       <div class="field-row single">
         <div class="field-group">
-          <label>Type <span class="req">*</span></label>
-          <select id="add-type">
+          <label>Type<span class="req">*</span></label>
+          <select id="add-type" name="type" required>
             <option value="" disabled selected>— Sélectionner —</option>
-            <option>Drone de loisir</option>
-            <option>Drone professionnel</option>
-            <option>Caméra embarquée</option>
-            <option>Accessoire</option>
-            <option>Pièce de rechange</option>
+            <option value="Drone" <?php echo (isset($type) && $type=='Drone') ? 'selected' : ''?>>Drone</option>
+            <option value="Accessoire" <?php echo (isset($type) && $type=='Accessoire') ? 'selected' : ''?>>Accessoire</option>
+            <option value="Camera" <?php echo (isset($type) && $type=='Camera') ? 'selected' : ''?>>Caméra</option>
           </select>
         </div>
       </div>
 
       <div class="form-footer">
-        <button class="btn-submit add" onclick="handleAdd()">
+        <button class="btn-submit add" type="submit" name="ajouter">
           ＋ Ajouter la catégorie
         </button>
       </div>
     </div>
   </div>
+  </form>
 
   <!-- ══ MODIFIER ══ -->
+  <form action="" method="post" name="f2">
   <div class="panel" id="panel-edit">
     <div class="card">
       <div class="card-header">
@@ -432,38 +479,38 @@
       <div class="field-row single">
         <div class="field-group">
           <label>ID Catégorie <span class="req">*</span></label>
-          <input type="number" id="edit-id" placeholder="Ex : 3" min="1" />
+          <input type="number" id="edit-id" placeholder="Ex : 3" name="id">
         </div>
       </div>
       <div class="field-row single">
         <div class="field-group">
           <label>Nouveau nom <span class="req">*</span></label>
-          <input type="text" id="edit-nom" placeholder="Ex : Drones agricoles" />
+          <input type="text" id="edit-nom" placeholder="Ex : Drones agricoles" name="nom1">
         </div>
       </div>
       <div class="field-row single">
         <div class="field-group">
           <label>Nouveau type <span class="req">*</span></label>
-          <select id="edit-type">
+          <select id="edit-type" name="type1">
             <option value="" disabled selected>— Sélectionner —</option>
-            <option>Drone de loisir</option>
-            <option>Drone professionnel</option>
-            <option>Caméra embarquée</option>
-            <option>Accessoire</option>
-            <option>Pièce de rechange</option>
+            <option value="Drone">Drone</option>
+            <option value="Camera">Camera</option>
+            <option value="Accessoire">Accessoire</option>
           </select>
         </div>
       </div>
 
       <div class="form-footer">
-        <button class="btn-submit edit" onclick="handleEdit()">
+        <button class="btn-submit edit" name="modifier" type="submit">
           ✔ Enregistrer les modifications
         </button>
       </div>
     </div>
   </div>
+  </form>
 
   <!-- ══ SUPPRIMER ══ -->
+   <form action="" name="f3" method="post">
   <div class="panel" id="panel-delete">
     <div class="card">
       <div class="card-header">
@@ -479,23 +526,23 @@
       <div class="field-row single">
         <div class="field-group">
           <label>ID Catégorie <span class="req">*</span></label>
-          <input type="number" id="del-id" placeholder="Ex : 5" min="1" />
+          <input type="number" id="del-id" placeholder="Ex : 5" min="1" name="id">
         </div>
       </div>
 
       <div class="form-footer">
-        <button class="btn-submit delete" onclick="handleDelete()">
+        <button class="btn-submit delete" name="supprimer" type="submit">
           ✕ Supprimer la catégorie
         </button>
       </div>
     </div>
   </div>
-
+   </form>
   <!-- ══ TABLEAU CATÉGORIES ══ -->
   <div class="table-section">
     <div class="table-section-header">
       <div class="table-section-title">Catégories disponibles</div>
-      <!-- Tu peux remplacer le chiffre ici dynamiquement avec PHP : ?> -->
+      <!-- Tu peux remplacer le chiffre ici dynamiquement avec PHP :  -->
       <span class="table-count" id="cat-count">0 entrée(s)</span>
     </div>
 
@@ -509,31 +556,15 @@
           </tr>
         </thead>
         <tbody id="categories-tbody">
-          <tr>
-            <td><span class="td-id">#1</span></td>
-            <td class="td-nom">Drones de loisir</td>
-            <td><span class="type-badge loisir">Drone de loisir</span></td>
-          </tr>
-          <tr>
-            <td><span class="td-id">#2</span></td>
-            <td class="td-nom">Drones professionnels</td>
-            <td><span class="type-badge pro">Drone professionnel</span></td>
-          </tr>
-          <tr>
-            <td><span class="td-id">#3</span></td>
-            <td class="td-nom">Caméras embarquées</td>
-            <td><span class="type-badge camera">Caméra embarquée</span></td>
-          </tr>
-          <tr>
-            <td><span class="td-id">#4</span></td>
-            <td class="td-nom">Accessoires</td>
-            <td><span class="type-badge accessoire">Accessoire</span></td>
-          </tr>
-          <tr>
-            <td><span class="td-id">#5</span></td>
-            <td class="td-nom">Pièces de rechange</td>
-            <td><span class="type-badge piece">Pièce de rechange</span></td>
-          </tr>
+          <?php   
+          while($tab=mysqli_fetch_assoc($res)){
+          echo "<tr>";
+          echo "<td><span class='td-id'>".$tab['id_categorie']."</span></td>";
+          echo "<td class='td-nom'>".$tab['nom'],"</td>";
+          echo "<td><span class='type-badge loisir'>".$tab['type']."</span></td>";
+          echo "</tr>";
+          }
+          ?>
         </tbody>
       </table>
     </div>
@@ -567,23 +598,6 @@
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  function handleAdd() {
-    const nom  = document.getElementById('add-nom').value.trim();
-    const type = document.getElementById('add-type').value;
-    if (!nom || !type) return showToast('⚠ Veuillez remplir tous les champs.', '#f59e0b');
-    showToast('✔ Catégorie "' + nom + '" ajoutée avec succès.', '#22c55e');
-    document.getElementById('add-nom').value = '';
-    document.getElementById('add-type').value = '';
-  }
-
-  function handleEdit() {
-    const id   = document.getElementById('edit-id').value.trim();
-    const nom  = document.getElementById('edit-nom').value.trim();
-    const type = document.getElementById('edit-type').value;
-    if (!id || !nom || !type) return showToast('⚠ Veuillez remplir tous les champs.', '#f59e0b');
-    showToast('✔ Catégorie #' + id + ' mise à jour.', '#22c55e');
-  }
-
   function handleDelete() {
     const id = document.getElementById('del-id').value.trim();
     if (!id) return showToast('⚠ Veuillez entrer un ID.', '#f59e0b');
@@ -591,5 +605,35 @@
     document.getElementById('del-id').value = '';
   }
 </script>
+<?php if(isset($_GET['succes']) && $_GET['succes']==1): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("Ligne Ajoutée dans la base !");
+      window.history.replaceState({},document.title,"categorie_formulaire.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
+<?php if(isset($_GET['succes']) && $_GET['succes']==2): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("Ligne modifiée avec succés !");
+      window.history.replaceState({},document.title,"categorie_formulaire.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
+<?php if(isset($_GET['succes']) && $_GET['succes']==3): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("Ligne supprimée avec succés !");
+      window.history.replaceState({},document.title,"categorie_formulaire.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
 </body>
 </html>
