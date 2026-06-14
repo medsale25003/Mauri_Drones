@@ -116,6 +116,13 @@ $result= $conn->query("
     ORDER BY a.id_accessoire DESC
     ");
 $accessoires = $result -> fetch_all(MYSQLI_ASSOC);
+
+// -- recuperer toutes les categories (pour la liste deroulante) --
+$result_cat = $conn->query("SELECT id_categorie, nom FROM categorie WHERE type = 'Accessoire' ORDER BY nom");
+if (!$result_cat) {
+    die("Erreur SQL categorie : " . $conn->error);
+}
+$categories = $result_cat -> fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -524,9 +531,9 @@ $accessoires = $result -> fetch_all(MYSQLI_ASSOC);
                     <label for="add_categorie">Catégorie <span class="required">*</span></label>
                     <select name="categorie" id="add_categorie" class="form-control" required>
                         <option value="">— Sélectionner —</option>
-                        <?php for($i = 1; $i <= 13; $i++): ?>
-                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                        <?php endfor; ?>
+                        <?php foreach($categories as $categorie): ?>
+                            <option value="<?php echo $categorie['id_categorie']; ?>"><?php echo htmlspecialchars($categorie['nom']); ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="form-group">
@@ -594,9 +601,9 @@ $accessoires = $result -> fetch_all(MYSQLI_ASSOC);
                     <label for="edit_categorie">Catégorie</label>
                     <select name="categorie" id="edit_categorie" class="form-control">
                         <option value="">— Sélectionner —</option>
-                        <?php for($i = 1; $i <= 13; $i++): ?>
-                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                        <?php endfor; ?>
+                        <?php foreach($categories as $categorie): ?>
+                            <option value="<?php echo $categorie['id_categorie']; ?>"><?php echo htmlspecialchars($categorie['nom']); ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="form-group">
