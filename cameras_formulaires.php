@@ -93,9 +93,12 @@ if(!empty($id) and !empty($modele_confirme)){
 else echo "<script> alert('erreur lors de la sauvagarde dans la base !') </script>";
 }
 }
-$sql="select * from cameras";
-$res=mysqli_query($con,$sql);
-?>
+<?php
+  $sql="select * from cameras";
+  $res=mysqli_query($con,$sql);
+  ?>
+ 
+?> 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
