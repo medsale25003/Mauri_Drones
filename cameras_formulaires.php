@@ -1,3 +1,104 @@
+<?php
+$con=mysqli_connect("localhost","root","","mauri_drones");
+if(isset($_POST['ajouter'])) {
+$marque= isset($_POST['marque']) ? htmlspecialchars(trim($_POST['marque'])) : '';
+$modele = isset($_POST['modele'] )? htmlspecialchars(trim($_POST['modele'])) : '';
+switch($_POST['categorie']){
+  case "Action":
+    $categorie=18;
+    break;
+  case "360":
+    $categorie=19;
+    break;
+  case "Plein Format":
+    $categorie=20;
+    break;
+  case "Cinema":
+    $categorie=21;
+    break;
+  default:
+    $categorie='';
+}
+$resolution= isset($_POST['resolution_max']) ? htmlspecialchars(trim($_POST['resolution_max'])): '';
+$capteur = isset($_POST['capteur']) ? htmlspecialchars(trim($_POST['capteur'])): '';
+$vision = isset($_POST['vision'] )? htmlspecialchars(trim($_POST['vision'])) :'';
+$autonomie = isset($_POST['autonomie']) ? htmlspecialchars(trim($_POST['autonomie'])): '';
+$prix_mru = isset($_POST['prix_mru']) ? htmlspecialchars(trim($_POST['prix_mru'])) :'';
+$statut_stock = isset($_POST['statut_stock']) ? htmlspecialchars(trim($_POST['statut_stock'])) : '';
+$lien = isset($_POST['lien']) ? htmlspecialchars(trim($_POST['lien'])) : '';
+
+if(!empty($marque) and !empty($modele) and !empty($categorie) and !empty($resolution) and !empty($capteur) and !empty($vision) and !empty($autonomie) and !empty($prix_mru) and !empty($statut_stock) and !empty($lien)){
+$sql="insert into cameras (marque,modele,id_categorie,resolution_max,capteur,champ_de_vision,autonomie,prix_mru,statut_stock,lien_image) values(?,?,?,?,?,?,?,?,?,?)";
+$stmt=$con->prepare($sql);
+$stmt->bind_param("ssiisiiiss",$marque,$modele,$categorie,$resolution,$capteur,$vision,$autonomie,$prix_mru,$statut_stock,$lien);
+if($stmt->execute()){
+  header("location:cameras_formulaires.php?ajout=1");
+  exit();
+}
+else echo "<script> alert('erreur lors de la sauvagarde dans la base !') </script>";
+}}
+
+if(isset($_POST['modifier'])){
+print_r($_POST);
+$id = isset($_POST['id'])  ? (int)htmlspecialchars(trim($_POST['id'])):'';
+// $marque = isset($_POST['marque']) ? htmlspecialchars(trim($_POST['marque'])):'';
+// $modele = isset($_POST['modele']) ? htmlspecialchars(trim($_POST['modele'])):'';
+switch($_POST['categorie']){
+  case "Action":
+    $categorie=18;
+    break;
+  case "360":
+    $categorie=19;
+    break;
+  case "Plein Format":
+    $categorie=20;
+    break;
+  case "Cinema":
+    $categorie=21;
+    break;
+  default:
+    $categorie='';
+}
+$resolution = isset($_POST['resolution']) ? htmlspecialchars(trim($_POST['resolution'])):'';
+$capteur = isset($_POST['capteur']) ? htmlspecialchars(trim($_POST['capteur'])):'';
+$vision = isset($_POST['vision']) ? htmlspecialchars(trim($_POST['vision'])):'';
+$autonomie = isset($_POST['autonomie']) ? htmlspecialchars(trim($_POST['autonomie'])):'';
+$prix_mru = isset($_POST['prix_mru']) ? htmlspecialchars(trim($_POST['prix_mru'])):'';
+$statut_stock = isset($_POST['statut_stock']) ? htmlspecialchars(trim($_POST['statut_stock'])):'';
+$lien = isset($_POST['lien']) ? htmlspecialchars(trim($_POST['lien'])):'';
+
+if(!empty($categorie) and !empty($resolution) and !empty($capteur) and !empty($vision) and !empty($autonomie) and !empty($prix_mru) and !empty($statut_stock) and !empty($lien)){
+$sql="update cameras set id_categorie=?, resolution_max=?, capteur=?, champ_de_vision =?, autonomie=?, prix_mru=?, statut_stock=?, lien_image=? where id_modele=?";
+$stmt=$con->prepare($sql);
+$stmt->bind_param("isssiissi",$categorie,$resolution,$capteur,$vision,$autonomie,$prix_mru,$statut_stock,$lien,$id);
+if ($stmt->execute()){
+  header("location:cameras_formulaires.php?modification=1");
+  exit();
+}
+else echo "<script> alert('erreur lors de la sauvagarde dans la base !') </script>";
+}}
+
+
+if(isset($_POST['supprimer'])){
+$id = $_POST['id'] ? htmlspecialchars(trim($_POST['id'])):'';
+$modele_confirme=$_POST['modele_confirm'] ?htmlspecialchars(trim($_POST['modele_confirm'])):'';
+if(!empty($id) and !empty($modele_confirme)){
+  $sql="delete from cameras where id_modele=?  and modele=? ";
+  $stmt=$con->prepare($sql);
+  $stmt->bind_param("is",$id,$modele_confirme);
+  if ($stmt->execute()) {
+     header("location:cameras_formulaires.php?suppression=1");
+  exit();
+  }
+else echo "<script> alert('erreur lors de la sauvagarde dans la base !') </script>";
+}
+}
+<?php
+  $sql="select * from cameras";
+  $res=mysqli_query($con,$sql);
+  ?>
+ 
+?> 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -242,6 +343,7 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
   </div>
 
   <!-- ══ AJOUTER ══ -->
+   
   <section id="panel-add" class="panel active" role="tabpanel">
     <div class="form-card">
       <div class="card-head">
@@ -253,26 +355,26 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
         <span class="head-chip">ID auto</span>
       </div>
       <div class="card-body">
-        <form id="form-add" action="traitement.php" method="POST" autocomplete="off">
-          <input type="hidden" name="action" value="add"/>
+        <form id="form-add" method="post" name="fo1">
+          <input type="hidden" name="marque" value="add"/>
           <div class="fgrid">
 
             <div class="field full">
-              <label for="a-modele">Modèle <span class="req">*</span></label>
-              <input type="text" id="a-modele" name="modele" placeholder="Ex : DJI Air 3S" required maxlength="120"/>
+              <label for="a-modele">Marque <span class="req">*</span></label>
+              <input type="text" id="a-modele" name="marque" placeholder="Ex : DJI " required maxlength="120" >
             </div>
-
+            <div class="field full">
+              <label for="a-modele">Modèle <span class="req">*</span></label>
+              <input type="text" id="a-modele" name="modele" placeholder="Ex :Air 3S" required maxlength="120" >
+            </div>
             <div class="field">
               <label for="a-categorie">Catégorie <span class="req">*</span></label>
-              <select id="a-categorie" name="categorie" required>
+              <select id="a-categorie" name="categorie">
                 <option value="" disabled selected>— Sélectionner —</option>
-                <option>Action</option>
-                <option>360°</option>
-                
-                <option>Plein Format / Pro</option>
-                <option>Cinéma</option>
-                <option>Drone</option>
-                <option>Autre</option>
+                <option value="Action">Action</option>
+                <option value="360">360</option>
+                <option value="Plein Format">Plein Format</option>
+                <option value="Cinema">Cinéma</option>
               </select>
             </div>
 
@@ -287,8 +389,8 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
             </div>
 
             <div class="field">
-              <label for="a-fov">Champ de Vision (FOV)</label>
-              <input type="text" id="a-fov" name="fov" placeholder="Ex : 155°" maxlength="40"/>
+              <label for="a-fov">Champ de Vision</label>
+              <input type="text" id="a-fov" name="vision" placeholder="Ex : 155°" maxlength="40"/>
             </div>
 
             <div class="field">
@@ -305,13 +407,10 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
               <label for="a-statut">Statut Stock <span class="req">*</span></label>
               <select id="a-statut" name="statut_stock" required>
                 <option value="" disabled selected>— Sélectionner —</option>
-                <option>En stock</option>
-                
-                <option>Sur commande</option>
-                
+                <option value="En stock">En stock</option>
+                <option value="Sur commande">Sur commande</option>
               </select>
             </div>
-
             <div class="field full">
               <label for="a-lien">Lien Image (URL)</label>
               <input type="url" id="a-lien" name="lien" placeholder="https://exemple.com/image.jpg" maxlength="500"/>
@@ -321,15 +420,16 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
           </div>
           <div class="divider"></div>
           <div class="form-actions">
-            <button type="reset"  class="btn btn-ghost">Annuler</button>
-            <button type="submit" class="btn btn-add">＋ Ajouter l'article</button>
+            <button type="reset"  class="btn btn-ghost" name="annuler">Annuler</button>
+            <button type="submit" class="btn btn-add" name="ajouter">＋ Ajouter l'article</button>
           </div>
         </form>
       </div>
     </div>
   </section>
-
+  
   <!-- ══ MODIFIER ══ -->
+   
   <section id="panel-edit" class="panel" role="tabpanel">
     <div class="form-card">
       <div class="card-head">
@@ -340,8 +440,8 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
         </div>
       </div>
       <div class="card-body">
-        <form id="form-edit" action="traitement.php" method="POST" autocomplete="off">
-          <input type="hidden" name="action" value="edit"/>
+        <form id="form-edit"  method="post" name="fo2">
+          <input type="hidden" name="" value="edit"/>
           <div class="fgrid">
 
             <div class="field full">
@@ -354,19 +454,16 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
               <label for="e-categorie">Catégorie</label>
               <select id="e-categorie" name="categorie">
                 <option value="">— Inchangé —</option>
-                <option>Action</option>
-                <option>360°</option>
-                
-                <option>Plein Format / Pro</option>
-                <option>Cinéma</option>
-               
-                <option>Autre</option>
+                <option value="Action">Action</option>
+                <option value="360">360°</option>
+                <option value="Plein Format">Plein Format</option>
+                <option value="Cinema">Cinéma</option>
               </select>
             </div>
 
             <div class="field">
               <label for="e-resolution">Résolution Max</label>
-              <input type="text" id="e-resolution" name="resolution_max" placeholder="Laisser vide = inchangé" maxlength="60"/>
+              <input type="text" id="e-resolution" name="resolution" placeholder="Laisser vide = inchangé" maxlength="60"/>
             </div>
 
             <div class="field">
@@ -376,7 +473,7 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
 
             <div class="field">
               <label for="e-fov">Champ de Vision (FOV)</label>
-              <input type="text" id="e-fov" name="fov" placeholder="Laisser vide = inchangé" maxlength="40"/>
+              <input type="text" id="e-fov" name="vision" placeholder="Laisser vide = inchangé" maxlength="40"/>
             </div>
 
             <div class="field">
@@ -393,9 +490,8 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
               <label for="e-statut">Statut Stock</label>
               <select id="e-statut" name="statut_stock">
                 <option value="">— Inchangé —</option>
-                <option>En stock</option>
-                
-  
+                <option value="En stock">En stock</option>
+                <option value="Sur commande">Sur Commande</option>
               </select>
             </div>
 
@@ -407,14 +503,14 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
           </div>
           <div class="divider"></div>
           <div class="form-actions">
-            <button type="reset"  class="btn btn-ghost">Annuler</button>
-            <button type="submit" class="btn btn-edit">✎ Enregistrer les modifications</button>
+            <button type="reset"  class="btn btn-ghost" name="annuler_lamodification">Annuler</button>
+            <button type="submit" class="btn btn-edit" name="modifier">✎ Enregistrer les modifications</button>
           </div>
         </form>
       </div>
     </div>
   </section>
-
+  
   <!-- ══ SUPPRIMER ══ -->
   <section id="panel-delete" class="panel" role="tabpanel">
     <div class="form-card">
@@ -431,9 +527,9 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
           <span style="font-size:16px;flex-shrink:0;margin-top:1px">⚠</span>
           <div><strong>Attention.</strong> Cette action est définitive. Vérifiez l'ID avant de confirmer.</div>
         </div>
-        <form id="form-delete" action="traitement.php" method="POST" autocomplete="off"
+        <form id="form-delete"  method="POST" autocomplete="off"
               onsubmit="return confirm('Supprimer définitivement cet article ?')">
-          <input type="hidden" name="action" value="delete"/>
+          <input type="hidden" name="action2" value="delete"/>
           <div class="fgrid">
 
             <div class="field">
@@ -451,8 +547,8 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
           </div>
           <div class="divider"></div>
           <div class="form-actions">
-            <button type="reset"  class="btn btn-ghost">Annuler</button>
-            <button type="submit" class="btn btn-del">✕ Supprimer l'article</button>
+            <button type="reset"  class="btn btn-ghost" name="annuler_lasupression">Annuler</button>
+            <button type="submit" class="btn btn-del" name="supprimer">✕ Supprimer l'article</button>
           </div>
         </form>
       </div>
@@ -475,40 +571,37 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
             <th></th>
             <th>ID</th>
             <th>Modèle</th>
+            <th>Marque</th>
             <th>Catégorie</th>
             <th>Résolution</th>
+            <th>Capteur</th>
+            <th>Champ de vision</th>
+            <th>Autonomie</th>
             <th>Prix</th>
             <th>Statut</th>
+            <th>lien_image</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><button class="btn-select">↑ Sélectionner</button></td>
-            <td class="td-id">#1</td>
-            <td class="td-modele">DJI Air 3S</td>
-            <td><span class="td-cat">Drone</span></td>
-            <td>4K/120fps</td>
-            <td class="td-prix">13 400 MRU</td>
-            <td><span class="badge-stock s-en">En stock</span></td>
-          </tr>
-          <tr>
-            <td><button class="btn-select">↑ Sélectionner</button></td>
-            <td class="td-id">#2</td>
-            <td class="td-modele">GoPro Hero 13</td>
-            <td><span class="td-cat">Action</span></td>
-            <td>5.3K/60fps</td>
-            <td class="td-prix">7 200 MRU</td>
-            <td><span class="badge-stock s-nkc">En stock Nouakchott</span></td>
-          </tr>
-          <tr>
-            <td><button class="btn-select">↑ Sélectionner</button></td>
-            <td class="td-id">#3</td>
-            <td class="td-modele">Insta360 X4</td>
-            <td><span class="td-cat">360°</span></td>
-            <td>8K/30fps</td>
-            <td class="td-prix">9 800 MRU</td>
-            <td><span class="badge-stock s-cmd">Sur commande</span></td>
-          </tr>
+          <?php
+          while($tab=mysqli_fetch_assoc($res)){
+          echo "<tr>";
+           echo " <td> <button class='btn-select'>↑ Sélectionner</button> </td>";
+           echo " <td class='td-id'>".$tab['id_modele']." </td>";
+           echo " <td class='td-modele'>".$tab['marque']."</td>";
+           echo " <td class='td-modele'>".$tab['modele']."</td>";
+            echo "<td><span class'td-cat'>".$tab['id_categorie']."</span></td>";
+            echo "<td>".$tab['resolution_max']."</td>";
+             echo "<td>".$tab['capteur']."</td>";
+            echo "<td>".$tab['champ_de_vision']."</td>";
+            echo "<td>".$tab['autonomie']."</td>";
+           echo" <td class='td-prix'>".$tab['prix_mru']."</td>";
+           echo "<td><span class='badge-stock s-en'>".$tab['statut_stock']."</span></td>";
+           echo "<td>".$tab['autonomie']."</td>";
+         echo " </tr>";
+          }
+      ?>
+          
         </tbody>
       </table>
     </div>
@@ -542,5 +635,36 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
   });
 </script>
 
+<?php if(isset($_GET['ajout']) && $_GET['ajout']==1): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("Ligne Ajoutée dans la base !");
+      window.history.replaceState({},document.title,"cameras_formulaire.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
+
+<?php if(isset($_GET['modification']) && $_GET['modification']==1): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("Ligne modifiée avec succées !");
+      window.history.replaceState({},document.title,"cameras_formulaire.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
+<?php if(isset($_GET['suppression']) && $_GET['suppression']==1): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("Ligne suprimée avec succées !");
+      window.history.replaceState({},document.title,"cameras_formulaire.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
 </body>
 </html>
