@@ -1,6 +1,6 @@
 <?php
 // -- connexion à la base de donnes "mauridrone" --
-$conn = new mysqli("localhost", "root", "", "mauri_drones");
+$conn = mysqli_connect("localhost", "root", "", "mauri_drones");
 if ($conn->connect_error) {
     die("Erreur de connexion : " . $conn->connect_error);
 }
@@ -29,13 +29,12 @@ if($_SERVER["REQUEST_METHOD"]=="POST") {
         ");
         $stm -> bind_param("ssissd", $marque, $access, $cat, $comp, $car, $prix);
          if($stm -> execute()) {
-        $message = "✅ Accessoire ajoute avec succès.";
         header("location:accessoires_form.php?succes=1");
         exit();
         }
     }
     else {
-        $message = "Erreur lors de l'ajout : " . $stm->error;
+        $message = "Erreur lors de l'ajout : " ;
         $message_type = "error";
     }
 }
@@ -66,8 +65,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST") {
         ");
         $stm2 -> bind_param("ssissdi",$marque, $access, $cat, $comp, $car, $prix, $id);
         if($stm2 -> execute()) {
-        $message = "✅ Accessoire modifié avec succès.";
-        header("location:accessoires_form.php?succes=1");
+        header("location:accessoires_form.php?succes=2");
         exit();
         }
 
@@ -89,11 +87,11 @@ if($_SERVER["REQUEST_METHOD"]=="POST") {
         $stm3 -> bind_param("i", $id);
         if($stm3->execute()) {
         $message = "🗑️ Accessoire supprimé.";
-        header("location:accessoires_form.php?succes=1");
+        header("location:accessoires_form.php?succes=3");
         exit();
     }
     else {
-                $message      = "Erreur lors de la suppression : " . $stm->error;
+                $message      = "Erreur lors de la suppression : ";
                 $message_type = "error";
             }
     }
@@ -740,5 +738,37 @@ $categories = $result_cat -> fetch_all(MYSQLI_ASSOC);
     }
 </script>
 
+<?php if(isset($_GET['succes']) && $_GET['succes']==1): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("✅ Accessoire ajouté avec succès.");
+      window.history.replaceState({},document.title,"accessoires_form.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
+
+<?php if(isset($_GET['succes']) && $_GET['succes']==2): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("✅ Accessoire modifié avec succès.");
+      window.history.replaceState({},document.title,"accessoires_form.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
+
+<?php if(isset($_GET['succes']) && $_GET['succes']==3): ?>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+      alert("🗑️ Accessoire supprimé avec succès.");
+      window.history.replaceState({},document.title,"accessoires_form.php");
+    }, 100);
+  });
+  </script>
+<?php endif; ?>
 </body>
 </html>

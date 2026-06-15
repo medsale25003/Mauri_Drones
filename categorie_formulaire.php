@@ -609,17 +609,17 @@ $res=mysqli_query($con,$req);
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-      alert("Ligne Ajoutée dans la base !");
+      alert("✅Ligne Ajoutée dans la base !");
       window.history.replaceState({},document.title,"categorie_formulaire.php");
     }, 100);
-  });
+  }); 
   </script>
 <?php endif; ?>
 <?php if(isset($_GET['succes']) && $_GET['succes']==2): ?>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-      alert("Ligne modifiée avec succés !");
+      alert("✎Ligne modifiée avec succés !");
       window.history.replaceState({},document.title,"categorie_formulaire.php");
     }, 100);
   });
@@ -629,7 +629,7 @@ $res=mysqli_query($con,$req);
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-      alert("Ligne supprimée avec succés !");
+      alert("✅Ligne supprimée avec succés !");
       window.history.replaceState({},document.title,"categorie_formulaire.php");
     }, 100);
   });
