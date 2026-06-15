@@ -93,12 +93,9 @@ if(!empty($id) and !empty($modele_confirme)){
 else echo "<script> alert('erreur lors de la sauvagarde dans la base !') </script>";
 }
 }
-<?php
-  $sql="select * from cameras";
-  $res=mysqli_query($con,$sql);
-  ?>
- 
-?> 
+$sql="select * from cameras";
+$res=mysqli_query($con,$sql);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -562,7 +559,7 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
   <div class="catalogue-section">
     <div class="catalogue-header">
       <h2>Catalogue <span>actuel</span></h2>
-      <span class="catalogue-count" id="row-count">3 articles</span>
+      <span class="catalogue-count" id="row-count"><?php echo count(mysqli_fetch_assoc($res))." article(s)" ?></span>
     </div>
     <div class="table-wrap">
       <table>
@@ -639,7 +636,7 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-      alert("Ligne Ajoutée dans la base !");
+      alert("✅Ligne Ajoutée dans la base !");
       window.history.replaceState({},document.title,"cameras_formulaire.php");
     }, 100);
   });
@@ -650,7 +647,7 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-      alert("Ligne modifiée avec succées !");
+      alert("✎Ligne modifiée avec succées !");
       window.history.replaceState({},document.title,"cameras_formulaire.php");
     }, 100);
   });
@@ -660,7 +657,7 @@ tr.selected .btn-select{background:var(--blue);color:#fff}
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-      alert("Ligne suprimée avec succées !");
+      alert("🗑️Ligne suprimée avec succées !");
       window.history.replaceState({},document.title,"cameras_formulaire.php");
     }, 100);
   });
